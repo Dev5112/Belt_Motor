@@ -6,13 +6,10 @@
 #include <mutex>
 #include <deque>
 #include <map>
-
 using json = nlohmann::json;
-
 std::map<std::string, MotorDigitalTwin> motors;
 std::map<std::string, std::deque<TelemetryDataPoint>> history;
 std::mutex mtx;
-
 void to_json(json& j, const TelemetryDataPoint& p) {
     j = json{
         {"timestamp", p.timestamp},
@@ -30,7 +27,6 @@ void to_json(json& j, const TelemetryDataPoint& p) {
         {"state", p.state}
     };
 }
-
 void simulation_loop() {
     while (true) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -43,28 +39,20 @@ void simulation_loop() {
         }
     }
 }
-
 int main() {
-    // Initialize dummy motors
     motors.emplace("MOTOR_001", MotorDigitalTwin("MOTOR_001"));
     motors.emplace("MOTOR_002", MotorDigitalTwin("MOTOR_002"));
-    
     for (auto& m : motors) {
         m.second.start();
     }
-
     std::thread sim_thread(simulation_loop);
-
     httplib::Server svr;
-
-    // CORS preflight handling
     svr.Options(R"(.*)", [](const httplib::Request&, httplib::Response& res) {
         res.set_header("Access-Control-Allow-Origin", "*");
         res.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
         res.set_header("Access-Control-Allow-Headers", "*");
         res.status = 204;
     });
-
     svr.Get("/", [](const httplib::Request&, httplib::Response& res) {
         FILE* f = fopen("dashboard.html", "r");
         if (f) {
@@ -79,13 +67,11 @@ int main() {
             res.set_content("Dashboard not found.", "text/plain");
         }
     });
-
     svr.Get("/api/v1/health", [](const httplib::Request&, httplib::Response& res) {
         res.set_header("Access-Control-Allow-Origin", "*");
         json j = {{"status", "ok"}};
         res.set_content(j.dump(), "application/json");
     });
-
     svr.Get("/api/v1/motors", [](const httplib::Request&, httplib::Response& res) {
         res.set_header("Access-Control-Allow-Origin", "*");
         std::lock_guard<std::mutex> lock(mtx);
@@ -102,7 +88,6 @@ int main() {
         }
         res.set_content(j.dump(), "application/json");
     });
-
     svr.Get("/api/v1/telemetry/latest", [](const httplib::Request&, httplib::Response& res) {
         res.set_header("Access-Control-Allow-Origin", "*");
         std::lock_guard<std::mutex> lock(mtx);
@@ -114,13 +99,11 @@ int main() {
         }
         res.set_content(j.dump(), "application/json");
     });
-
     svr.Get(R"(/api/v1/telemetry/([^/]+))", [](const httplib::Request& req, httplib::Response& res) {
         res.set_header("Access-Control-Allow-Origin", "*");
         std::string motor_id = req.matches[1];
         int limit = 100;
         if (req.has_param("limit")) limit = std::stoi(req.get_param_value("limit"));
-
         std::lock_guard<std::mutex> lock(mtx);
         json j = json::array();
         if (history.count(motor_id)) {
@@ -134,7 +117,6 @@ int main() {
         }
         res.set_content(j.dump(), "application/json");
     });
-
     svr.Post("/api/v1/faults/inject", [](const httplib::Request& req, httplib::Response& res) {
         res.set_header("Access-Control-Allow-Origin", "*");
         auto body = json::parse(req.body);
@@ -142,7 +124,6 @@ int main() {
         std::string fault_type = body["fault_type"];
         double mult = body.value("intensity_multiplier", 1.0);
         int dur = body.value("duration_seconds", 60);
-
         std::lock_guard<std::mutex> lock(mtx);
         if (motors.count(motor_id)) {
             motors.at(motor_id).inject_fault(fault_type, mult, dur);
@@ -151,12 +132,10 @@ int main() {
             res.status = 404;
         }
     });
-
     svr.Post(R"(/api/v1/faults/clear/([^/]+)/([^/]+))", [](const httplib::Request& req, httplib::Response& res) {
         res.set_header("Access-Control-Allow-Origin", "*");
         std::string motor_id = req.matches[1];
         std::string fault_type = req.matches[2];
-
         std::lock_guard<std::mutex> lock(mtx);
         if (motors.count(motor_id)) {
             motors.at(motor_id).clear_fault(fault_type);
@@ -165,9 +144,7 @@ int main() {
             res.status = 404;
         }
     });
-
     std::cout << "Starting C++ Telemetry Server on http://localhost:8080..." << std::endl;
     svr.listen("0.0.0.0", 8080);
-    
     return 0;
 }
