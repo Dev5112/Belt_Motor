@@ -2,13 +2,13 @@
 
 An advanced industrial IoT (IIoT) simulation and monitoring system for conveyor-belt motors. This project features a **C++ backend** that simulates multi-motor "Digital Twins" generating realistic telemetry data, and a **Python Streamlit dashboard** for real-time monitoring, fault injection, and historical analytics.
 
-## 🌟 Project Overview
+## Project Overview
 
 In industrial environments, predictive maintenance is critical to preventing downtime. This project simulates a fleet of conveyor belt motors running in real-time, producing high-fidelity telemetry metrics such as temperature, vibration, current, voltage, and acoustic noise. 
 
 It uses **Ornstein-Uhlenbeck (OU) stochastic noise processes** to mimic real-world sensor fluctuations and implements complex thermal dynamics and physical degradation modeling. Users can proactively inject various faults (e.g., bearing wear, stator short) and observe how the telemetry responds, making this an excellent tool for training Anomaly Detection and Remaining Useful Life (RUL) machine learning models.
 
-## 🚀 Key Features
+## Key Features
 
 - **Realistic Digital Twins**: High-fidelity simulation of AC induction motors with physics-informed thermal dynamics.
 - **Stochastic Noise Modeling**: Uses Ornstein-Uhlenbeck processes for realistic, mean-reverting sensor noise.
@@ -17,7 +17,7 @@ It uses **Ornstein-Uhlenbeck (OU) stochastic noise processes** to mimic real-wor
 - **Embedded Database**: Uses DuckDB with Write-Ahead Logging (WAL) for highly efficient, PostgreSQL-grade analytical persistence of telemetry data.
 - **Interactive Dashboard**: A Streamlit and Plotly-powered Python frontend offering Live Monitoring, Fault Management, and Historical Analytics.
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 **Backend:**
 - C++17
@@ -31,7 +31,7 @@ It uses **Ornstein-Uhlenbeck (OU) stochastic noise processes** to mimic real-wor
 - Plotly (Data Visualization)
 - Pandas & Requests
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 ├── cpp_backend/               # C++ Source Code
@@ -47,7 +47,7 @@ It uses **Ornstein-Uhlenbeck (OU) stochastic noise processes** to mimic real-wor
 └── README.md                  # Project Documentation
 ```
 
-## ⚙️ Setup & Installation
+## Setup & Installation
 
 ### 1. Compile the C++ Backend
 Navigate to the `cpp_backend` directory and compile the server using a C++17 compatible compiler (like `clang++` or `g++`).
@@ -67,7 +67,7 @@ source venv/bin/activate  # On Windows use: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## 🏃‍♂️ Running the Project
+## Running the Project
 
 You will need two terminal windows to run the system.
 
@@ -85,7 +85,7 @@ streamlit run dashboard/app.py
 ```
 *(The dashboard runs on `http://localhost:8501`)*
 
-## 📡 REST API Reference
+## REST API Reference
 
 The C++ backend provides several endpoints for interacting with the digital twins:
 
@@ -94,7 +94,7 @@ The C++ backend provides several endpoints for interacting with the digital twin
 - `POST /api/v1/faults/inject` - Inject a physical fault into a specific motor.
 - `POST /api/v1/faults/clear/{motor_id}/{fault_type}` - Clear an active fault.
 
-## 🔮 Future Roadmap
+## Future Roadmap
 
 - **Rule-based & ML Hybrid Anomaly Detection**: Integrating autoencoders to automatically flag deviations.
 - **Advanced RUL Prediction**: Estimating Remaining Useful Life based on degradation slopes.
